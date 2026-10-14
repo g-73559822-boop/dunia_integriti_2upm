@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pengembara Integriti: 2 UPM</title>
+<style>
+:root{--ink:#172442;--blue:#3679f6;--lime:#b8f34d;--gold:#ffd34f}
+*{box-sizing:border-box}body{margin:0;background:#b9ecff;color:var(--ink);font-family:"Trebuchet MS",Arial,sans-serif}
+header{text-align:center;padding:14px 10px 8px;background:linear-gradient(#75d6ff,#b9ecff)}
+h1{margin:4px 0 8px;font-size:clamp(1.55rem,4vw,2.7rem);color:#fff;-webkit-text-stroke:1px #244779;text-shadow:3px 4px #244779,5px 6px #172442}
+.subtitle{font-weight:900;background:var(--lime);border:3px solid white;border-radius:10px;padding:7px 12px;display:inline-block;box-shadow:0 4px #4a843b}
+.hud{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:12px 0 3px}.pill{background:white;border:2px solid var(--ink);border-radius:10px;padding:7px 11px;font-weight:900;box-shadow:0 3px var(--ink)}
+main{max-width:1100px;width:96%;margin:12px auto 28px}
+.gamebox{border:5px solid var(--ink);border-radius:22px;overflow:hidden;box-shadow:0 9px var(--ink),0 15px 0 #8d7bff;background:#e8f5ff}
+#world{display:block;width:100%;height:auto;aspect-ratio:900/520;background:#87d889;touch-action:none}
+.below{padding:14px;background:linear-gradient(135deg,#fff,#f5f0ff)}
+.help{background:linear-gradient(100deg,#d8fbff,#f3e6ff,#fff5c8);border:3px solid #6557ff;border-radius:15px;padding:12px;font-weight:900;line-height:1.5;box-shadow:0 4px #d6c8ff}
+.controls{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:12px}
+.dpad{display:grid;grid-template-columns:44px 44px 44px;grid-template-rows:40px 40px;gap:4px}
+.dpad button{border:3px solid var(--ink);border-radius:12px;background:linear-gradient(#fff,#c8f7ff);box-shadow:0 4px var(--ink);font-size:1.2rem;font-weight:1000;touch-action:none}
+.dpad .up{grid-column:2}.dpad .left{grid-column:1;grid-row:2}.dpad .down{grid-column:2;grid-row:2}.dpad .right{grid-column:3;grid-row:2}
+.btn{border:3px solid var(--ink);border-radius:14px;padding:11px 15px;font:inherit;font-weight:1000;cursor:pointer;box-shadow:0 5px var(--ink);background:linear-gradient(#9c92ff,#6557ff);color:#fff;transition:transform .12s,filter .12s}.btn:hover{filter:brightness(1.08);transform:translateY(-2px)}
+.btn:active{transform:translateY(3px);box-shadow:0 2px var(--ink)}.btn.secondary{background:linear-gradient(#fff,#e8faff);color:var(--ink)}
+.modal{position:fixed;inset:0;background:#101a35b8;display:flex;align-items:center;justify-content:center;padding:16px;z-index:5}
+.card{width:min(620px,100%);background:linear-gradient(145deg,#fff,#f4f0ff);border:5px solid var(--ink);border-radius:24px;padding:20px;box-shadow:0 8px var(--ink),0 13px 0 #ff70bd;max-height:90vh;overflow:auto}
+.card h2{margin:4px 0 8px}.choice-list{display:grid;grid-template-columns:1fr;gap:9px;margin:15px 0}
+.choice{padding:13px;border:3px solid var(--ink);border-radius:14px;background:linear-gradient(100deg,#dffaff,#f0eaff);text-align:left;font:inherit;font-weight:1000;cursor:pointer;box-shadow:0 4px var(--ink);transition:transform .12s}
+.choice:hover{transform:translateY(-2px)}.choice:nth-child(2n){background:linear-gradient(100deg,#e8ffd3,#fff8bd)}.choice:nth-child(3n){background:linear-gradient(100deg,#ffe0f1,#fff0c6)}.choice:disabled{opacity:.55}
+.feedback{padding:10px;border-radius:10px;border:2px solid #6178a2;background:#f5f7ff;font-weight:900;line-height:1.4;min-height:42px}
+.feedback.good{background:#d9ffe9;border-color:#278456;color:#146744}.feedback.bad{background:#fff0f2;border-color:#c74661;color:#9b2940}
+.hidden{display:none!important}.lyric{line-height:1.8;background:#fffced;border:2px dashed #8294bd;padding:12px;border-radius:10px;margin:12px 0}
+footer{text-align:center;font-size:.85rem;font-weight:800;padding:8px 0 18px}
+@media(max-width:600px){.controls{justify-content:center}.controls .actions{flex:1;display:flex;gap:8px;justify-content:center}.controls .btn{padding:10px}.below{padding:10px}}
+</style></head>
+<body>
+<header>
+ <h1>🎮 PENGEMBARA INTEGRITI</h1><div class="subtitle">🌈 2 UPM • DUNIA PENGEMBARAAN</div>
+ <div class="hud"><div class="pill">⭐ Markah: <span id="score">0</span>/70</div><div class="pill">🗺️ Stesen: <span id="stations">0</span>/7</div><div class="pill">🏅 Lencana: <span id="badges">0</span></div></div>
+</header>
+<main>
+ <div class="gamebox"><canvas id="world" width="900" height="520" aria-label="Peta pengembaraan interaktif"></canvas>
+ <div class="below">
+  <div class="help">🕹️ <b>Terokai dunia!</b> Gerakkan watak menggunakan <b>WASD / anak panah</b> atau butang arah. Pergi ke stesen bernombor, kemudian tekan <b>ESPACE / INTERAKSI</b> untuk memilih rangkap lirik yang betul. Lengkapkan ketujuh-tujuh stesen!</div>
+  <div class="controls">
+   <div class="dpad" aria-label="Kawalan gerakan"><button class="up" data-dir="up">▲</button><button class="left" data-dir="left">◀</button><button class="down" data-dir="down">▼</button><button class="right" data-dir="right">▶</button></div>
+   <div class="actions"><button class="btn" id="interact">E / INTERAKSI ✨</button><button class="btn secondary" id="showLyrics">📜 Lihat lirik</button><button class="btn secondary" id="reset">↻ Mula semula</button></div>
+  </div>
+ </div></div>
+ <section id="lyricsPanel" class="card hidden" style="margin:18px auto;position:relative">
+  <h2>📜 Lirik yang sedang dilengkapkan</h2><div id="lyricText" class="lyric"></div><button class="btn secondary" id="closeLyrics">Tutup</button>
+ </section>
+</main>
+<footer>🌟 Amalkan integriti, rajin belajar dan bersikap baik di sekolah! 🌟</footer>
+
+<div id="stationModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="stationTitle">
+ <div class="card"><div class="subtitle">STESEN <span id="stationNumber">1</span> / 7</div><h2 id="stationTitle">Lengkapkan lirik</h2><p id="stationPrompt"></p><div id="stationContext" class="lyric" style="max-height:38vh;overflow:auto;line-height:1.8"></div><div id="choices" class="choice-list"></div><div id="stationFeedback" class="feedback" aria-live="polite">Pilih rangkap yang sesuai.</div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px"><button id="closeStation" class="btn secondary">Kembali ke dunia</button></div></div>
+</div>
+<div id="winModal" class="modal hidden"><div class="card" style="text-align:center"><div style="font-size:4rem">🏆</div><h2>Hebat, Wira Integriti!</h2><p>Kamu berjaya meneroka semua tujuh stesen dan melengkapkan lagu!</p><div style="font-size:2rem;font-weight:1000;color:#3679f6"><span id="finalScore">0</span>/70 mata</div><p>Terus amalkan sikap baik, rajin belajar dan rendah hati.</p><button class="btn" id="playAgain">Main lagi 🔁</button></div></div>
+
+<script>
+const canvas=document.getElementById('world'),ctx=canvas.getContext('2d');
+const W=900,H=520;
+const stationData=[
+ {x:145,y:125,line:'________',full:'Pesanlah datuk nenek,',options:['Pesanlah datuk nenek,','Terbang tinggi di awan;','Berbulu di telinga:'],correct:0,prompt:'Lengkapkan lirik untuk Stesen 1.'},
+ {x:340,y:105,line:'________',full:'Alah rajinlah belajar.',options:['Cepat-cepat melangkah.','Alah rajinlah belajar.','Berdiri lama-lama.'],correct:1,prompt:'Lengkapkan lirik untuk Stesen 2.'},
+ {x:555,y:130,line:'________',full:'Berbulu di telinga:',options:['Alah rajinlah belajar.','Berbulu di telinga:','Terbang tinggi di awan;'],correct:1,prompt:'Lengkapkan lirik untuk Stesen 3.'},
+ {x:760,y:205,line:'________',full:'Berdiri lama-lama.',options:['Berdiri lama-lama.','Alah janganlah laku sombong.','Cepat-cepat melangkah.'],correct:0,prompt:'Lengkapkan lirik untuk Stesen 4.'},
+ {x:625,y:390,line:'________',full:'Cepat-cepat melangkah.',options:['Pesanlah datuk nenek,','Cepat-cepat melangkah.','Berbulu di telinga:'],correct:1,prompt:'Lengkapkan lirik untuk Stesen 5.'},
+ {x:365,y:405,line:'________',full:'Terbang tinggi di awan;',options:['Pesanlah datuk nenek,','Terbang tinggi di awan;','Berdiri lama-lama.'],correct:1,prompt:'Lengkapkan lirik untuk Stesen 6.'},
+ {x:145,y:345,line:'________',full:'Alah janganlah laku sombong.',options:['Alah rajinlah belajar.','Cepat-cepat melangkah.','Alah janganlah laku sombong.'],correct:2,prompt:'Lengkapkan lirik untuk Stesen 7.'}
+];
+let player={x:65,y:255,dir:0},score=0,done=new Set(),activeStation=null,keys={},last=0;
+const trees=[{x:75,y:90},{x:260,y:230},{x:465,y:75},{x:815,y:100},{x:820,y:420},{x:500,y:300},{x:230,y:440},{x:70,y:435}];
+const paths=[[[65,255],[145,125],[340,105],[555,130],[760,205],[625,390],[365,405],[145,345],[65,255]]];
+function roundRect(c,x,y,w,h,r){c.beginPath();c.roundRect(x,y,w,h,r);c.fill();}
+function drawTree(x,y){ctx.fillStyle='#8a5a34';ctx.fillRect(x-5,y+4,10,24);ctx.fillStyle='#2f9e55';ctx.fillRect(x-20,y-18,40,27);ctx.fillStyle='#4bc96c';ctx.fillRect(x-14,y-28,28,20);ctx.fillStyle='#77df7c';ctx.fillRect(x-6,y-32,12,8)}
+function drawWorld(){
+ ctx.clearRect(0,0,W,H);
+ // chunky grass tiles
+ ctx.fillStyle='#83dc82';ctx.fillRect(0,0,W,H);
+ for(let y=0;y<H;y+=40)for(let x=0;x<W;x+=40){ctx.fillStyle=((x/40+y/40)%2===0)?'#8be18a':'#7dd77d';ctx.fillRect(x,y,38,38)}
+ // winding block path
+ ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();ctx.moveTo(65,255);ctx.lineTo(145,125);ctx.lineTo(340,105);ctx.lineTo(555,130);ctx.lineTo(760,205);ctx.lineTo(625,390);ctx.lineTo(365,405);ctx.lineTo(145,345);ctx.lineTo(65,255);
+ ctx.strokeStyle='#b88a57';ctx.lineWidth=45;ctx.stroke();ctx.strokeStyle='#e8c88b';ctx.lineWidth=34;ctx.stroke();
+ // water pond
+ ctx.fillStyle='#55c9f4';ctx.fillRect(380,205,110,55);ctx.fillStyle='#a3edff';ctx.fillRect(390,215,50,7);ctx.fillRect(445,235,30,6);
+ trees.forEach(t=>drawTree(t.x,t.y));
+ // decorative flowers / rocks
+ for(let i=0;i<22;i++){let x=(i*137+43)%W,y=(i*83+27)%H;if(Math.abs(x-player.x)>22||Math.abs(y-player.y)>22){ctx.fillStyle=i%2?'#ffdf5a':'#ff8dbb';ctx.fillRect(x,y,6,6);ctx.fillStyle='#fff7dc';ctx.fillRect(x+2,y+2,3,3)}}
+ // station signs
+ stationData.forEach((s,i)=>{
+  const isDone=done.has(i),near=Math.hypot(player.x-s.x,player.y-s.y)<52;
+  ctx.fillStyle='#20345e';ctx.fillRect(s.x-24,s.y-5,48,35);
+  ctx.fillStyle=isDone?'#58e6a0':(near?'#ffe35d':'#73b7ff');ctx.fillRect(s.x-20,s.y-25,40,40);
+  ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.strokeRect(s.x-20,s.y-25,40,40);
+  ctx.fillStyle='#172442';ctx.font='bold 22px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(isDone?'✓':String(i+1),s.x,s.y-5);
+  ctx.font='bold 12px Arial';ctx.fillStyle='#17345d';ctx.fillText(isDone?'SELESAI':'STESEN '+(i+1),s.x,s.y+45);
+  if(near&&!isDone){ctx.fillStyle='#172442';roundRect(ctx,s.x-55,s.y-56,110,23,6);ctx.fillStyle='#fff';ctx.font='bold 12px Arial';ctx.fillText('TEKAN E',s.x,s.y-44)}
+ });
+ // player shadow, body and head as block avatar
+ ctx.fillStyle='#3a6a3b66';ctx.fillRect(player.x-12,player.y+16,26,7);
+ ctx.fillStyle='#2864b9';ctx.fillRect(player.x-12,player.y-2,24,22);
+ ctx.fillStyle='#ffca8a';ctx.fillRect(player.x-10,player.y-19,20,18);
+ ctx.fillStyle='#253454';ctx.fillRect(player.x-11,player.y-22,22,6);ctx.fillRect(player.x-8,player.y-24,16,4);
+ ctx.fillStyle='#243454';ctx.fillRect(player.x-5,player.y-13,3,3);ctx.fillRect(player.x+3,player.y-13,3,3);
+ ctx.fillStyle='#3b4f7a';ctx.fillRect(player.x-10,player.y+20,8,8);ctx.fillRect(player.x+3,player.y+20,8,8);
+ // minimap
+ ctx.fillStyle='#fff';ctx.fillRect(14,14,150,70);ctx.strokeStyle='#20345e';ctx.lineWidth=3;ctx.strokeRect(14,14,150,70);
+ ctx.fillStyle='#20345e';ctx.font='bold 12px Arial';ctx.textAlign='left';ctx.fillText('PETA PENGEMBARA',23,30);
+ stationData.forEach((s,i)=>{ctx.fillStyle=done.has(i)?'#25b96f':'#3679f6';ctx.fillRect(24+(s.x/W)*125,35+(s.y/H)*40,6,6)});
+ ctx.fillStyle='#ff4f6f';ctx.fillRect(24+(player.x/W)*125,35+(player.y/H)*40,7,7);
+ requestAnimationFrame(drawWorld);
+}
+function updateHud(){document.getElementById('score').textContent=score;document.getElementById('stations').textContent=done.size;document.getElementById('badges').textContent=Math.floor(done.size/1)}
+function move(dx,dy){if(!document.getElementById('stationModal').classList.contains('hidden'))return;player.x=Math.max(25,Math.min(W-25,player.x+dx));player.y=Math.max(35,Math.min(H-28,player.y+dy));}
+document.addEventListener('keydown',e=>{let k=e.key.toLowerCase();if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();if(k==='arrowup'||k==='w')move(0,-12);if(k==='arrowdown'||k==='s')move(0,12);if(k==='arrowleft'||k==='a')move(-12,0);if(k==='arrowright'||k==='d')move(12,0);if(k==='e'||k===' ')interact();});
+document.querySelectorAll('[data-dir]').forEach(b=>{const act=()=>{const d=b.dataset.dir;if(d==='up')move(0,-14);if(d==='down')move(0,14);if(d==='left')move(-14,0);if(d==='right')move(14,0)};b.addEventListener('click',act);b.addEventListener('touchstart',e=>{e.preventDefault();act()},{passive:false})});
+function interact(){
+ if(!document.getElementById('stationModal').classList.contains('hidden'))return;
+ let nearest=-1,dist=1e9;stationData.forEach((s,i)=>{let d=Math.hypot(player.x-s.x,player.y-s.y);if(d<dist){dist=d;nearest=i}});
+ if(nearest<0||dist>57){alert('Bergeraklah ke papan stesen bernombor dahulu, bro!');return}
+ if(done.has(nearest)){alert('Stesen ini sudah selesai! Teruskan ke stesen lain.');return}
+ openStation(nearest);
+}
+function openStation(i){
+ activeStation=i;const s=stationData[i];document.getElementById('stationNumber').textContent=i+1;document.getElementById('stationPrompt').textContent=s.prompt+' Baca rangkap-rangkap di bawah untuk mencari sambungan yang sesuai.';
+ const stanzas = [
+  ['Burunglah kenek-kenek,','Hinggap di pohon jati;',0,'Alah bangunlah pagi-pagi.'],
+  ['Burunglah kenek-kenek,','Hinggap di atas pagar;','Pesanlah datuk nenek,',1],
+  ['Geleng-geleng sapi,',2,'Atur tapak kaki,',3],
+  ['Geleng-geleng sapi,','Sapi berbulu merah,','Atur tapak kaki,',4],
+  ['Burunglah kenek-kenek,',5,'Pesanlah datuk nenek,','Pandai-pandailah cari kawan.'],
+  ['Burunglah kenek-kenek,','Hinggap di atas bumbung;','Pesanlah datuk nenek,',6]
+ ];
+ const context=document.getElementById('stationContext');
+ context.innerHTML='<b>🎵 Lirik sebagai petunjuk</b><br>'+stanzas.map((st,n)=>'<p style="margin:8px 0;padding:7px;border-radius:8px;background:'+(st.includes(i)?'#fff0bd':'#ffffff')+'">'+st.map(v=>typeof v==='number'?(v===i?'<b style="color:#245ac0">_____ (Jawapan Stesen '+(v+1)+')</b>':(done.has(v)?stationData[v].full:'_____')):v).join('<br>')+'</p>').join('');
+ const box=document.getElementById('choices');box.innerHTML='';document.getElementById('stationFeedback').className='feedback';document.getElementById('stationFeedback').textContent='Pilih rangkap yang paling sesuai untuk melengkapkan lirik.';
+ s.options.forEach((o,j)=>{let b=document.createElement('button');b.className='choice';b.textContent='🧩 '+o;b.onclick=()=>answerStation(i,j,b);box.appendChild(b)});
+ document.getElementById('stationModal').classList.remove('hidden');
+}
+function answerStation(i,j,btn){
+ const fb=document.getElementById('stationFeedback'),buttons=[...document.querySelectorAll('#choices .choice')];
+ if(j===stationData[i].correct){done.add(i);score+=10;updateHud();fb.className='feedback good';fb.textContent='🎉 Tepat! Rangkap lirik berjaya dilengkapkan. +10 mata!';buttons.forEach(b=>b.disabled=true);btn.style.borderColor='#1b8b58';document.getElementById('closeStation').textContent=done.size===7?'Tamatkan permainan 🏆':'Kembali ke dunia 🌳';}
+ else{fb.className='feedback bad';fb.textContent='Belum tepat, pengembara! Cuba baca lirik sekali lagi dan pilih rangkap yang sesuai.';btn.disabled=true}
+}
+document.getElementById('closeStation').onclick=()=>{document.getElementById('stationModal').classList.add('hidden');if(!document.getElementById('lyricsPanel').classList.contains('hidden'))renderFullLyrics();if(done.size===7){document.getElementById('finalScore').textContent=score;document.getElementById('winModal').classList.remove('hidden')}};
+document.getElementById('interact').onclick=interact;
+function renderFullLyrics(){
+ const lines = [
+  ['Burunglah kenek-kenek,','Hinggap di pohon jati;',0,'Alah bangunlah pagi-pagi.'],
+  ['Burunglah kenek-kenek,','Hinggap di atas pagar;','Pesanlah datuk nenek,',1],
+  ['Geleng-geleng sapi,',2,'Atur tapak kaki,',3],
+  ['Geleng-geleng sapi,','Sapi berbulu merah,','Atur tapak kaki,',4],
+  ['Burunglah kenek-kenek,',5,'Pesanlah datuk nenek,','Pandai-pandailah cari kawan.'],
+  ['Burunglah kenek-kenek,','Hinggap di atas bumbung;','Pesanlah datuk nenek,',6]
+ ];
+ const text = value => typeof value === 'number'
+   ? (done.has(value) ? stationData[value].full : `<span style="display:inline-block;min-width:210px;padding:2px 12px;border:2px dashed #3679f6;border-radius:7px;background:#fff3bd;color:#245ac0;font-weight:900">__________ (Stesen ${value+1})</span>`)
+   : value;
+ document.getElementById('lyricText').innerHTML =
+  '<h3 style="text-align:center">🎵 Burunglah Kenek-kenek</h3>' +
+  lines.map(stanza=>'<p style="margin:0 0 14px">'+stanza.map(text).join('<br>')+'</p>').join('') +
+  '<p style="font-size:.9rem;color:#596687"><b>Petunjuk:</b> Bahagian bergaris ialah rangkap yang perlu dicari di stesen. Lengkapkan semua 7 stesen untuk membuka lirik penuh.</p>';
+}
+document.getElementById('showLyrics').onclick=()=>{renderFullLyrics();document.getElementById('lyricsPanel').classList.remove('hidden')};
+document.getElementById('closeLyrics').onclick=()=>document.getElementById('lyricsPanel').classList.add('hidden');
+function resetGame(){score=0;done.clear();player={x:65,y:255,dir:0};updateHud();document.getElementById('stationModal').classList.add('hidden');document.getElementById('winModal').classList.add('hidden');document.getElementById('lyricsPanel').classList.add('hidden')}
+document.getElementById('reset').onclick=resetGame;document.getElementById('playAgain').onclick=resetGame;
+updateHud();drawWorld();
+</script></body></html>
